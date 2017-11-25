@@ -4,7 +4,7 @@
   const tokenKey = 'token'
   const token = localStorage.getItem(tokenKey)
   const myURLsKey = 'myURLs'
-  const myURLs = localStorage.getItem(myURLsKey)
+  const myURLs = parseJSON(localStorage.getItem(myURLsKey)) || []
 
   const $settingsBtn = $('#settingsBtn')
   const $settingsDialog = $('#settingsDialog')
@@ -49,8 +49,26 @@
 
   function saveURL () {
     if ($urlForm.checkValidity()) {
+      const data = {}
 
-      localStorage.setItem(myURLsKey, $tokenInput.value)
+      for (let i = 0, l = $urlForm.length; i < l; ++i) {
+        const input = $urlForm[i]
+        if (input.name) data[input.name] = input.value
+      }
+
+      data.timestamp = Date.now()
+
+      if (data.id) {
+        let i = myURLs.length
+        while (i--) {
+          if (myURLs[i].id === data.id) myURLs[i] = data
+        }
+      } else {
+        data.id = getId()
+        myURLs.push(data)
+      }
+
+      localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
       hideURLDialog()
     }
   }
@@ -58,5 +76,19 @@
   function hideURLDialog () {
     $urlDialog.close()
     $urlForm.reset()
+  }
+
+  function parseJSON (str) {
+    try {
+        return JSON.parse(str)
+    } catch(e) {
+        return null;
+    }
+  }
+
+  function getId () {
+    const array = new Uint32Array(1)
+    window.crypto.getRandomValues(array)
+    return array[0]
   }
 })()

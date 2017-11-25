@@ -103,12 +103,13 @@
     <h4 class="mdl-dialog__title"><span id="addEdit">Add</span> URL</h4>
     <div class="mdl-dialog__content">
       <form id="urlForm">
+        <input class="mdl-textfield__input" type="text" name="id" id="urlId" hidden>
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <input class="mdl-textfield__input" type="text" id="urlInput" required>
+          <input class="mdl-textfield__input" type="text" name="url" id="urlInput" required>
           <label class="mdl-textfield__label" for="urlInput">URL</label>
         </div>
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <input class="mdl-textfield__input" type="text" id="titleInput">
+          <input class="mdl-textfield__input" type="text" name="title" id="titleInput">
           <label class="mdl-textfield__label" for="titleInput">Title</label>
         </div>
       </form>
