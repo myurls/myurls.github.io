@@ -9,6 +9,7 @@
   const $settingsBtn = $('#settingsBtn')
   const $settingsDialog = $('#settingsDialog')
   const $settingsForm = $('#settingsForm')
+  const $tokenInput = $('#tokenInput')
   const $saveSettingsBtn = $('#saveSettingsBtn')
   const $cancelSettingsBtn = $('#cancelSettingsBtn')
 
@@ -16,7 +17,8 @@
   const $urlDialog = $('#urlDialog')
   const $addEdit = $('#addEdit')
   const $urlForm = $('#urlForm')
-  const $tokenInput = $('#tokenInput')
+  const $urlInput = $('#urlInput')
+  const $titleInput = $('#titleInput')
   const $saveURLBtn = $('#saveURLBtn')
   const $cancelURLBtn = $('#cancelURLBtn')
 
@@ -31,6 +33,7 @@
   $urlForm.addEventListener('submit', saveURL)
   $saveURLBtn.addEventListener('click', saveURL)
   $cancelURLBtn.addEventListener('click', hideURLDialog)
+  $urlInput.addEventListener('change', updateTitle)
 
   function init () {
     $tokenInput.value = token
@@ -45,6 +48,19 @@
 
   function hideSettingsDialog () {
     $settingsDialog.close()
+  }
+
+  function updateTitle (e) {
+      fetch(`https://cors-anywhere.herokuapp.com/${$urlInput.value}`)
+      .then(res => res.text())
+      .then(str => (new window.DOMParser()).parseFromString(str, 'text/html'))
+      .then(htmlDocument => {
+        $titleInput.value = htmlDocument.title
+      })
+      .catch(err => {
+        console.error(err)
+        $titleInput.value = $urlInput.value
+      })
   }
 
   function saveURL () {
