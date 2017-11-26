@@ -36,6 +36,11 @@
   $urlInput.addEventListener('change', updateTitle)
 
   function init () {
+    if (!$settingsDialog.showModal) {
+      dialogPolyfill.registerDialog($settingsDialog);
+      dialogPolyfill.registerDialog($urlDialog);
+    }
+
     $tokenInput.value = token
   }
 
