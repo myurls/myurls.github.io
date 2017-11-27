@@ -33,6 +33,7 @@
   const $loadingURLs = $('#loadingURLs')
   const $searchInput = $('#searchInput')
   const $urlList = $('#urlList')
+  const $snackbar = $('#snackbar')
 
   let lastScrollTop = 0
 
@@ -57,6 +58,14 @@
   $deleteNo.addEventListener('click', deleteNoHandler)
 
   function init () {
+    const url = location.search.split('=').pop()
+    if (isValidURL(url)) {
+      fetch(corsAnywhere(url))
+      .then(res => res.text())
+      .then(str => (new window.DOMParser()).parseFromString(str, 'text/html'))
+      .then(({ title }) => saveURL({ url, title, id: getId(), timestamp: Date.now() }))
+      .catch(console.error)
+    }
     if (!$settingsDialog.showModal) {
       dialogPolyfill.registerDialog($settingsDialog)
       dialogPolyfill.registerDialog($urlDialog)
@@ -79,17 +88,17 @@
     lastScrollTop = st
   }
 
-  function hideElement($el) {
+  function hideElement ($el) {
     setTimeout(() => $el.classList.add('hidden'), 500)
     $el.classList.add('visually-hidden')
   }
 
-  function showElement($el) {
+  function showElement ($el) {
     $el.classList.remove('hidden')
     setTimeout(() => $el.classList.remove('visually-hidden'), 10)
   }
 
-  function searchHandler() {
+  function searchHandler () {
     const elements = [...$urlList.children]
     const query = $searchInput.value.trim().toLowerCase()
 
@@ -109,27 +118,27 @@
 
   // source: https://github.com/bevacqua/fuzzysearch
   function fuzzySearch (needle, haystack) {
-    var hlen = haystack.length;
-    var nlen = needle.length;
+    const hlen = haystack.length
+    const nlen = needle.length
     if (nlen > hlen) {
-      return false;
+      return false
     }
     if (nlen === hlen) {
-      return needle === haystack;
+      return needle === haystack
     }
     outer: for (var i = 0, j = 0; i < nlen; i++) {
-      var nch = needle.charCodeAt(i);
+      const nch = needle.charCodeAt(i)
       while (j < hlen) {
         if (haystack.charCodeAt(j++) === nch) {
-          continue outer;
+          continue outer
         }
       }
-      return false;
+      return false
     }
-    return true;
+    return true
   }
 
-  function deleteYesHandler() {
+  function deleteYesHandler () {
     const id = $deleteItem.dataset.deleteid
     const $li = $('#' + id)
     hideElement($li)
@@ -172,7 +181,7 @@
     }
   }
 
-  function showSettingsDialog() {
+  function showSettingsDialog () {
     $saveURLBtn.disabled = true
     $settingsDialog.showModal()
   }
@@ -182,21 +191,30 @@
   }
 
   function urlInputHandler (e) {
-    if (!/^https?:\/\/\w+\.\w+.+$/.test($urlInput.value)) return
+    const url = $urlInput.value
+    if (!isValidURL(url)) return
 
     $loadingAddURL.style.display = 'block'
     $saveURLBtn.disabled = true
-    fetch(`https://cors-anywhere.herokuapp.com/${$urlInput.value}`)
+    fetch(corsAnywhere(url))
     .then(res => res.text())
     .then(str => (new window.DOMParser()).parseFromString(str, 'text/html'))
-    .then(html => updateTitle(html.title))
+    .then(({ title }) => updateTitle(title))
     .catch(err => {
       console.error(err)
       updateTitle()
     })
   }
 
-  function updateTitle(title) {
+  function isValidURL (url) {
+    return /^https?:\/\/\w+\.\w+.+$/.test(url)
+  }
+
+  function corsAnywhere (url) {
+    return 'https://cors-anywhere.herokuapp.com/' + url
+  }
+
+  function updateTitle (title) {
     $titleInput.value = $titleInput.value || title || $urlInput.value
     fixMDLInput($titleInput)
     $loadingAddURL.style.display = 'none'
@@ -227,8 +245,7 @@
         $('#' + data.id).replaceWith(generateListItem(data))
       } else {
         data.id = getId()
-        myURLs.push(data)
-        $urlList.prepend(generateListItem(data))
+        saveURL(data)
       }
 
       componentHandler.upgradeAllRegistered()
@@ -238,7 +255,32 @@
     }
   }
 
-  function hideURLDialog() {
+  function saveURL (urlObj) {
+    let exists = false
+    let i = myURLs.length
+
+    while (i--) {
+      if (myURLs[i].url === urlObj.url) {
+        exists = true
+        $snackbar.MaterialSnackbar.showSnackbar({
+          message: 'URL already exists.',
+          actionHandler: e => $snackbar.MaterialSnackbar.cleanup_(),
+          actionText: 'OK',
+          timeout: 4000
+        })
+        break
+      }
+    }
+
+    if (!exists) {
+      myURLs.push(urlObj)
+      $urlList.prepend(generateListItem(urlObj))
+    }
+
+    localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
+  }
+
+  function hideURLDialog () {
     $addEdit.innerText = 'Add'
     $urlDialog.close()
     $urlForm.reset()
@@ -251,9 +293,9 @@
 
   function parseJSON (str) {
     try {
-        return JSON.parse(str)
-    } catch(e) {
-        return null;
+      return JSON.parse(str)
+    } catch (e) {
+      return null
     }
   }
 
@@ -267,7 +309,7 @@
     return Object.assign(document.createElement('li'), {
       id: url.id,
       classList: 'mdl-list__item mdl-list__item--two-line',
-        innerHTML: `<a href="${url.url}" target="_blank" class="mdl-list__item-primary-content custom-item">
+      innerHTML: `<a href="${url.url}" target="_blank" class="mdl-list__item-primary-content custom-item">
         <img src="https://www.google.com/s2/favicons?domain_url=${url.url}" />
         <span class="item-title" title="${url.title}">${url.title}</span>
         <span title="${url.url}" class="item-url mdl-list__item-sub-title">${url.url}</span>
