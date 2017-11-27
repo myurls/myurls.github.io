@@ -2,14 +2,17 @@
   const $ = selector => document.querySelector(selector)
 
   const tokenKey = 'token'
-  const token = localStorage.getItem(tokenKey)
+  let token = localStorage.getItem(tokenKey)
+  const gistKey = 'gist'
+  let gist = localStorage.getItem(gistKey)
   const myURLsKey = 'myURLs'
-  const myURLs = parseJSON(localStorage.getItem(myURLsKey)) || []
+  let myURLs = parseJSON(localStorage.getItem(myURLsKey)) || []
 
   const $settingsBtn = $('#settingsBtn')
   const $settingsDialog = $('#settingsDialog')
   const $settingsForm = $('#settingsForm')
   const $tokenInput = $('#tokenInput')
+  const $gistHashInput = $('#gistHashInput')
   const $saveSettingsBtn = $('#saveSettingsBtn')
   const $cancelSettingsBtn = $('#cancelSettingsBtn')
 
@@ -73,11 +76,9 @@
     }
 
     $tokenInput.value = token
+    $gistHashInput.value = gist
 
-    myURLs.forEach(data => $urlList.prepend(generateListItem(data)))
-    componentHandler.upgradeAllRegistered()
-
-    $loadingURLs.style.display = 'none'
+    syncMyURLs()
   }
 
   function scrollHandler () {
@@ -144,8 +145,11 @@
     hideElement($li)
     $deleteDialog.close()
     $li.remove()
+
     myURLs.forEach((data, i) => data.id === id && myURLs.splice(i, 1))
+
     localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
+    uploadMyURLs()
   }
 
   function deleteNoHandler () {
@@ -176,7 +180,10 @@
 
   function saveSettingsHandler () {
     if ($settingsForm.checkValidity()) {
-      localStorage.setItem(tokenKey, $tokenInput.value)
+      token = $tokenInput.value
+      gist = $gistHashInput.value
+      localStorage.setItem(tokenKey, token)
+      localStorage.setItem(gistKey, gist)
       hideSettingsDialog()
     }
   }
@@ -184,6 +191,8 @@
   function showSettingsDialog () {
     $saveURLBtn.disabled = true
     $settingsDialog.showModal()
+    fixMDLInput($tokenInput)
+    fixMDLInput($gistHashInput)
   }
 
   function hideSettingsDialog () {
@@ -201,8 +210,8 @@
     .then(str => (new window.DOMParser()).parseFromString(str, 'text/html'))
     .then(({ title }) => updateTitle(title))
     .catch(err => {
-      console.error(err)
       updateTitle()
+      console.error(err)
     })
   }
 
@@ -243,6 +252,8 @@
         })
 
         $('#' + data.id).replaceWith(generateListItem(data))
+
+        syncMyURLs()
       } else {
         data.id = getId()
         saveURL(data)
@@ -250,7 +261,6 @@
 
       componentHandler.upgradeAllRegistered()
 
-      localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
       hideURLDialog()
     }
   }
@@ -275,9 +285,9 @@
     if (!exists) {
       myURLs.push(urlObj)
       $urlList.prepend(generateListItem(urlObj))
-    }
 
-    localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
+      syncMyURLs()
+    }
   }
 
   function hideURLDialog () {
@@ -326,5 +336,78 @@
         </ul>
       </span>`
     })
+  }
+
+  function renderMyURLs () {
+    $urlList.innerHTML = ''
+    myURLs.forEach(data => $urlList.prepend(generateListItem(data)))
+    componentHandler.upgradeAllRegistered()
+    $loadingURLs.style.display = 'none'
+  }
+
+  function syncMyURLs () {
+    if (!token || !gist) {
+      renderMyURLs()
+      localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
+      return
+    } else if (myURLs.length) {
+      renderMyURLs()
+    }
+
+    fetch('https://api.github.com/gists/' + gist, {
+      headers: {
+        Authorization: 'token ' + token
+      }
+    })
+    .then(res => res.json())
+    .then(json => {
+      const remoteURLs = parseJSON(json.files.myurls.content) || []
+      myURLs = mergeArrays('url', myURLs, remoteURLs)
+      renderMyURLs()
+      localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
+      uploadMyURLs()
+    })
+    .catch(err => {
+      renderMyURLs()
+      localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
+      console.error(err)
+    })
+  }
+
+  function uploadMyURLs () {
+    const request = new XMLHttpRequest()
+    request.open('PATCH', 'https://api.github.com/gists/' + gist, false)
+    request.setRequestHeader('Content-type', 'application/json')
+    request.setRequestHeader('Authorization', 'token ' + token)
+    request.send(JSON.stringify({
+      description: 'Gist for https://myurls.github.io',
+      files: {
+        myurls: {
+          content: JSON.stringify(myURLs)
+        }
+      }
+    }))
+  }
+
+  function mergeArrays (keyName) {
+    const index = {}
+    let i = 0
+    let len = 0
+    const merge = []
+    let arr
+    let name
+
+    for (var j = 1; j < arguments.length; j++) {
+      arr = arguments[j]
+      for (i = 0, len = arr.length; i < len; i++) {
+        name = arr[i][keyName]
+        if ((typeof name !== 'undefined') && !(name in index)) {
+          index[name] = true
+          merge.push(arr[i])
+        }
+      }
+    }
+
+    return merge
   }
 })()

@@ -58,11 +58,16 @@
   <dialog id="settingsDialog" class="mdl-dialog mdl-cell--6-col">
     <h4 class="mdl-dialog__title">Settings</h4>
     <div class="mdl-dialog__content">
-    <p>A personal access token from Github is required to sync your URLs online. You can obtain one from <a href="https://github.com/settings/tokens/new">here</a>. Make sure to select <strong>gist</strong> scope.</p>
+    <p>A personal access token from Github is required to sync your URLs online. You can obtain one from <a href="https://github.com/settings/tokens/new">here</a>. Make sure to select <strong><code>gist</code></strong> scope.</p>
+    <p>Next create a secret gist with <strong><code>myurls.json</code></strong> file name and <strong><code>[]</code></strong> in content from <a href="https://gist.github.com/" target="_blank">here</a>.</p>
       <form id="settingsForm">
         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
           <input class="mdl-textfield__input" type="text" id="tokenInput" required>
           <label class="mdl-textfield__label" for="tokenInput">Github access token</label>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+          <input class="mdl-textfield__input" type="text" id="gistHashInput" required>
+          <label class="mdl-textfield__label" for="tokenInput">Gist hash</label>
         </div>
       </form>
     </div>
