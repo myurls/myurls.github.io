@@ -34,13 +34,44 @@
   margin-right: 40px;
   margin-bottom: 40px;
   z-index: 900;
+  transition: opacity 0.6s linear;
 }
 
-.search, .mdl-dialog .mdl-textfield {
+li {
+  transition: opacity 0.6s linear;
+}
+
+.hidden {
+  display: none;
+}
+
+.visually-hidden {
+  opacity: 0;
+}
+
+.search, .mdl-dialog .mdl-textfield, .loading {
   width: 100%;
+}
+
+dialog {
+  z-index: 999;
 }
 
 .search input,
 .search label {
   text-align: center;
+}
+
+.custom-item {
+  white-space: nowrap;
+  width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 42px !important;
+}
+
+.loading {
+  margin-top: -22px;
+  height: 2px;
+  transition: all 0.6s linear;
 }

@@ -22,12 +22,12 @@
   <!--[if IE]>
             <p>Your Browser Is Not Supported! ¯\_(ツ)_/¯</p>
         <![endif]-->
-  <div class="custom-layout mdl-layout mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">
+  <div id="mainContainer" class="custom-layout mdl-layout mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">
     <header class="custom-header mdl-layout__header mdl-layout__header--scroll mdl-color--grey-100 mdl-color-text--grey-800">
       <div class="mdl-layout__header-row">
         <span class="mdl-layout-title">My URLs</span>
         <div class="mdl-layout-spacer"></div>
-        <button id="settingsBtn" class="mdl-button mdl-js-button mdl-button--icon">
+        <button id="settingsBtn" class="mdl-button mdl-js-button mdl-button--icon" title="Settings">
           <i class="material-icons">settings</i>
         </button>
     </header>
@@ -42,49 +42,17 @@
               <label class="mdl-textfield__label" for="searchInput">Search...</label>
             </div>
           </form>
-          <ul class="custom-list-two mdl-list">
-            <li class="mdl-list__item mdl-list__item--two-line">
-              <a href="http://nvie.com/posts/a-successful-git-branching-model/" target="_blank" class="mdl-list__item-primary-content">
-                <img src="http://www.google.com/s2/favicons?domain_url=http://nvie.com/posts/a-successful-git-branching-model/" />
-                <span>A successful Git branching model » nvie.com</span>
-                <span class="mdl-list__item-sub-title">http://nvie.com/posts/a-successful-git-branching-model/</span>
-              </a>
-              <span class="mdl-list__item-secondary-action">
-                <button class="android-more-button mdl-button mdl-js-button mdl-button--icon mdl-js-ripple-effect" id="urlMenu0">
-                  <i class="material-icons">more_vert</i>
-                </button>
-                <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-left mdl-js-ripple-effect" for="urlMenu0">
-                  <li class="mdl-menu__item">Edit</li>
-                  <li class="mdl-menu__item">Delete</li>
-                </ul>
-              </span>
-            </li>
-            <li class="mdl-list__item mdl-list__item--two-line">
-              <a href="https://dev.to/albertofdzm/documenting-your-api-with-api-blueprint-e0m" target="_blank" class="mdl-list__item-primary-content">
-                <img src="http://www.google.com/s2/favicons?domain_url=https://dev.to/albertofdzm/documenting-your-api-with-api-blueprint-e0m"
-                />
-                <span>Documenting your API with API Blueprint</span>
-                <span class="mdl-list__item-sub-title">https://dev.to/albertofdzm/documenting-your-api-with-api-blueprint-e0m</span>
-              </a>
-              <span class="mdl-list__item-secondary-action">
-                <button class="android-more-button mdl-button mdl-js-button mdl-button--icon mdl-js-ripple-effect" id="urlMenu1">
-                  <i class="material-icons">more_vert</i>
-                </button>
-                <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-left mdl-js-ripple-effect" for="urlMenu1">
-                  <li class="mdl-menu__item">Edit</li>
-                  <li class="mdl-menu__item">Delete</li>
-                </ul>
-              </span>
-            </li>
+          <span id="loadingURLs" class="loading mdl-progress mdl-js-progress mdl-progress__indeterminate"></span>
+          <ul id="urlList" class="custom-list-two mdl-list">
           </ul>
         </div>
       </div>
     </main>
   </div>
-  <button id="addURLBtn" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+  <button id="addURLBtn" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" title="Add new URL">
     <i class="material-icons">add</i>
   </button>
-  <dialog id="settingsDialog" class="mdl-dialog mdl-cell--8-col">
+  <dialog id="settingsDialog" class="mdl-dialog mdl-cell--6-col">
     <h4 class="mdl-dialog__title">Settings</h4>
     <div class="mdl-dialog__content">
     <p>A personal access token from Github is required to sync your URLs online. You can obtain one from <a href="https://github.com/settings/tokens/new">here</a>. Make sure to select <strong>gist</strong> scope.</p>
@@ -100,7 +68,7 @@
       <button id="cancelSettingsBtn" type="button" class="mdl-button close">Cancel</button>
     </div>
   </dialog>
-  <dialog id="urlDialog" class="mdl-dialog mdl-cell--8-col">
+  <dialog id="urlDialog" class="mdl-dialog mdl-cell--6-col">
     <h4 class="mdl-dialog__title"><span id="addEdit">Add</span> URL</h4>
     <div class="mdl-dialog__content">
       <form id="urlForm">
@@ -113,6 +81,7 @@
           <input class="mdl-textfield__input" type="text" name="title" id="titleInput" required>
           <label class="mdl-textfield__label" for="titleInput">Title</label>
         </div>
+        <span id="loadingAddURL" class="loading mdl-progress mdl-js-progress mdl-progress__indeterminate" style="display: none"></span>
       </form>
     </div>
     <div class="mdl-dialog__actions">
@@ -120,6 +89,19 @@
       <button id="cancelURLBtn" type="button" class="mdl-button close">Cancel</button>
     </div>
   </dialog>
+  <dialog id="deleteDialog" class="mdl-dialog mdl-cell--4-col">
+      <h4 class="mdl-dialog__title">Delete</h4>
+      <div class="mdl-dialog__content">
+        <p>
+          Are you sure you want to delete this item?
+        </p>
+        <strong id="deleteItem"></strong>
+      </div>
+      <div class="mdl-dialog__actions">
+        <button id="deleteYes" type="button" class="mdl-button">Yes</button>
+        <button id="deleteNo" type="button" class="mdl-button close">No</button>
+      </div>
+    </dialog>
 </body>
 
 </html>

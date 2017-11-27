@@ -17,58 +17,198 @@
   const $urlDialog = $('#urlDialog')
   const $addEdit = $('#addEdit')
   const $urlForm = $('#urlForm')
+  const $urlId = $('#urlId')
   const $urlInput = $('#urlInput')
   const $titleInput = $('#titleInput')
+  const $loadingAddURL = $('#loadingAddURL')
   const $saveURLBtn = $('#saveURLBtn')
   const $cancelURLBtn = $('#cancelURLBtn')
 
+  const $deleteDialog = $('#deleteDialog')
+  const $deleteYes = $('#deleteYes')
+  const $deleteNo = $('#deleteNo')
+  const $deleteItem = $('#deleteItem')
+
+  const $mainContainer = $('#mainContainer')
+  const $loadingURLs = $('#loadingURLs')
+  const $searchInput = $('#searchInput')
+  const $urlList = $('#urlList')
+
+  let lastScrollTop = 0
+
   init()
 
-  $settingsBtn.addEventListener('click', () => $settingsDialog.showModal())
-  $settingsForm.addEventListener('submit', saveSettings)
-  $saveSettingsBtn.addEventListener('click', saveSettings)
+  $settingsBtn.addEventListener('click', showSettingsDialog)
+  $settingsForm.addEventListener('submit', saveSettingsHandler)
+  $saveSettingsBtn.addEventListener('click', saveSettingsHandler)
   $cancelSettingsBtn.addEventListener('click', hideSettingsDialog)
 
-  $addURLBtn.addEventListener('click', () => $urlDialog.showModal())
-  $urlForm.addEventListener('submit', saveURL)
-  $saveURLBtn.addEventListener('click', saveURL)
+  $addURLBtn.addEventListener('click', showURLDialog)
+  $urlForm.addEventListener('submit', saveURLHandler)
+  $saveURLBtn.addEventListener('click', saveURLHandler)
   $cancelURLBtn.addEventListener('click', hideURLDialog)
-  $urlInput.addEventListener('change', updateTitle)
+  $urlInput.addEventListener('change', urlInputHandler)
+
+  $mainContainer.addEventListener('scroll', scrollHandler, false)
+  $searchInput.addEventListener('keyup', searchHandler)
+  document.addEventListener('click', clickHandler)
+
+  $deleteYes.addEventListener('click', deleteYesHandler)
+  $deleteNo.addEventListener('click', deleteNoHandler)
 
   function init () {
     if (!$settingsDialog.showModal) {
-      dialogPolyfill.registerDialog($settingsDialog);
-      dialogPolyfill.registerDialog($urlDialog);
+      dialogPolyfill.registerDialog($settingsDialog)
+      dialogPolyfill.registerDialog($urlDialog)
+      dialogPolyfill.registerDialog($deleteDialog)
     }
 
     $tokenInput.value = token
+
+    myURLs.forEach(data => $urlList.prepend(generateListItem(data)))
+    componentHandler.upgradeAllRegistered()
+
+    $loadingURLs.style.display = 'none'
   }
 
-  function saveSettings () {
+  function scrollHandler () {
+    var st = $mainContainer.scrollTop
+    var diff = st - lastScrollTop
+    if (Math.abs(diff) < 140) return
+    (st > lastScrollTop ? hideElement : showElement)($addURLBtn)
+    lastScrollTop = st
+  }
+
+  function hideElement($el) {
+    setTimeout(() => $el.classList.add('hidden'), 500)
+    $el.classList.add('visually-hidden')
+  }
+
+  function showElement($el) {
+    $el.classList.remove('hidden')
+    setTimeout(() => $el.classList.remove('visually-hidden'), 10)
+  }
+
+  function searchHandler() {
+    const elements = [...$urlList.children]
+    const query = $searchInput.value.trim().toLowerCase()
+
+    if (query.length < 2) {
+      elements.forEach($el => {
+        $el.style.display = ''
+      })
+      return
+    }
+
+    elements.forEach($el => {
+      const text = $el.innerText.replace(/\n|more_vert/g, '').toLowerCase()
+
+      $el.style.display = fuzzySearch(query, text) ? '' : 'none'
+    })
+  }
+
+  // source: https://github.com/bevacqua/fuzzysearch
+  function fuzzySearch (needle, haystack) {
+    var hlen = haystack.length;
+    var nlen = needle.length;
+    if (nlen > hlen) {
+      return false;
+    }
+    if (nlen === hlen) {
+      return needle === haystack;
+    }
+    outer: for (var i = 0, j = 0; i < nlen; i++) {
+      var nch = needle.charCodeAt(i);
+      while (j < hlen) {
+        if (haystack.charCodeAt(j++) === nch) {
+          continue outer;
+        }
+      }
+      return false;
+    }
+    return true;
+  }
+
+  function deleteYesHandler() {
+    const id = $deleteItem.dataset.deleteid
+    const $li = $('#' + id)
+    hideElement($li)
+    $deleteDialog.close()
+    $li.remove()
+    myURLs.forEach((data, i) => data.id === id && myURLs.splice(i, 1))
+    localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
+  }
+
+  function deleteNoHandler () {
+    $deleteDialog.close()
+  }
+
+  function clickHandler (e) {
+    const id = e.target.parentElement.dataset.id
+    if (id) {
+      const $li = $('#' + e.target.parentElement.dataset.id)
+      const action = e.target.dataset.action
+      const title = $li.querySelector('.item-title').innerText
+      if (action === 'edit') {
+        $addEdit.innerText = 'Update'
+        $urlId.value = id
+        $titleInput.value = title
+        $urlInput.value = $li.querySelector('.item-url').innerText
+        fixMDLInput($urlInput)
+        fixMDLInput($titleInput)
+        $urlDialog.showModal()
+      } else if (action === 'delete') {
+        $deleteItem.innerText = title
+        $deleteItem.dataset.deleteid = id
+        $deleteDialog.show()
+      }
+    }
+  }
+
+  function saveSettingsHandler () {
     if ($settingsForm.checkValidity()) {
       localStorage.setItem(tokenKey, $tokenInput.value)
       hideSettingsDialog()
     }
   }
 
+  function showSettingsDialog() {
+    $saveURLBtn.disabled = true
+    $settingsDialog.showModal()
+  }
+
   function hideSettingsDialog () {
     $settingsDialog.close()
   }
 
-  function updateTitle (e) {
-      fetch(`https://cors-anywhere.herokuapp.com/${$urlInput.value}`)
-      .then(res => res.text())
-      .then(str => (new window.DOMParser()).parseFromString(str, 'text/html'))
-      .then(htmlDocument => {
-        $titleInput.value = htmlDocument.title
-      })
-      .catch(err => {
-        console.error(err)
-        $titleInput.value = $urlInput.value
-      })
+  function urlInputHandler (e) {
+    if (!/^https?:\/\/\w+\.\w+.+$/.test($urlInput.value)) return
+
+    $loadingAddURL.style.display = 'block'
+    $saveURLBtn.disabled = true
+    fetch(`https://cors-anywhere.herokuapp.com/${$urlInput.value}`)
+    .then(res => res.text())
+    .then(str => (new window.DOMParser()).parseFromString(str, 'text/html'))
+    .then(html => updateTitle(html.title))
+    .catch(err => {
+      console.error(err)
+      updateTitle()
+    })
   }
 
-  function saveURL () {
+  function updateTitle(title) {
+    $titleInput.value = $titleInput.value || title || $urlInput.value
+    fixMDLInput($titleInput)
+    $loadingAddURL.style.display = 'none'
+    $saveURLBtn.disabled = $titleInput.disabled = false
+  }
+
+  function fixMDLInput ($input) {
+    $input.parentElement.MaterialTextfield.checkDirty()
+    $input.parentElement.MaterialTextfield.checkValidity()
+  }
+
+  function saveURLHandler () {
     if ($urlForm.checkValidity()) {
       const data = {}
 
@@ -80,23 +220,33 @@
       data.timestamp = Date.now()
 
       if (data.id) {
-        let i = myURLs.length
-        while (i--) {
-          if (myURLs[i].id === data.id) myURLs[i] = data
-        }
+        myURLs.forEach((d, i) => {
+          if (d.id === data.id) myURLs[i] = data
+        })
+
+        $('#' + data.id).replaceWith(generateListItem(data))
       } else {
         data.id = getId()
         myURLs.push(data)
+        $urlList.prepend(generateListItem(data))
       }
+
+      componentHandler.upgradeAllRegistered()
 
       localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
       hideURLDialog()
     }
   }
 
-  function hideURLDialog () {
+  function hideURLDialog() {
+    $addEdit.innerText = 'Add'
     $urlDialog.close()
     $urlForm.reset()
+  }
+
+  function showURLDialog () {
+    $saveURLBtn.disabled = $titleInput.disabled = true
+    $urlDialog.showModal()
   }
 
   function parseJSON (str) {
@@ -110,6 +260,27 @@
   function getId () {
     const array = new Uint32Array(1)
     window.crypto.getRandomValues(array)
-    return array[0]
+    return 'url' + array[0]
+  }
+
+  function generateListItem (url) {
+    return Object.assign(document.createElement('li'), {
+      id: url.id,
+      classList: 'mdl-list__item mdl-list__item--two-line',
+        innerHTML: `<a href="${url.url}" target="_blank" class="mdl-list__item-primary-content custom-item">
+        <img src="https://www.google.com/s2/favicons?domain_url=${url.url}" />
+        <span class="item-title" title="${url.title}">${url.title}</span>
+        <span title="${url.url}" class="item-url mdl-list__item-sub-title">${url.url}</span>
+      </a>
+      <span class="mdl-list__item-secondary-action">
+        <button class="android-more-button mdl-button mdl-js-button mdl-button--icon mdl-js-ripple-effect" id="urlMenu${url.id}" title="Menu">
+          <i class="material-icons">more_vert</i>
+        </button>
+        <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-left mdl-js-ripple-effect" for="urlMenu${url.id}" data-id="${url.id}">
+          <li data-action="edit" class="mdl-menu__item">Edit</li>
+          <li data-action="delete" class="mdl-menu__item">Delete</li>
+        </ul>
+      </span>`
+    })
   }
 })()
