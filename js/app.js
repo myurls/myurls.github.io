@@ -273,12 +273,7 @@
     while (i--) {
       if (myURLs[i].url === urlObj.url) {
         exists = true
-        $snackbar.MaterialSnackbar.showSnackbar({
-          message: 'URL already exists.',
-          actionHandler: e => $snackbar.MaterialSnackbar.cleanup_(),
-          actionText: 'OK',
-          timeout: 4000
-        })
+        showSnackbar('URL already exists.')
         break
       }
     }
@@ -371,7 +366,18 @@
     .catch(err => {
       renderMyURLs()
       localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
+
+      showSnackbar()
       console.error(err)
+    })
+  }
+
+  function showSnackbar (message, actionText, time, actionHandler) {
+    $snackbar.MaterialSnackbar.showSnackbar({
+      message: message || 'Could not sync with gist. Pelease provide the correct token and gist.',
+      actionHandler: actionHandler || function () { $snackbar.MaterialSnackbar.cleanup_() },
+      actionText: actionText || 'OK',
+      timeout: time || 4000
     })
   }
 
@@ -380,6 +386,10 @@
     request.open('PATCH', 'https://api.github.com/gists/' + gist, false)
     request.setRequestHeader('Content-type', 'application/json')
     request.setRequestHeader('Authorization', 'token ' + token)
+    request.onreadystatechange = e => {  
+      if (request.readyState === 4 && request.status !== 200) showSnackbar()
+    }
+  
     request.send(JSON.stringify({
       description: 'Gist for https://myurls.github.io',
       files: {
