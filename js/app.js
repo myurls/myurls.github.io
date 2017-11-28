@@ -385,6 +385,7 @@
 
   function uploadMyURLs() {
     if (!token || !gist) return
+    if (!$settingsBtn.classList.contains('spin')) $settingsBtn.classList.add('spin')
     const request = new XMLHttpRequest()
     request.open('PATCH', 'https://api.github.com/gists/' + gist, false)
     request.setRequestHeader('Content-type', 'application/json')
