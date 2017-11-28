@@ -383,7 +383,8 @@
     })
   }
 
-  function uploadMyURLs () {
+  function uploadMyURLs() {
+    if (!token || !gist) return
     const request = new XMLHttpRequest()
     request.open('PATCH', 'https://api.github.com/gists/' + gist, false)
     request.setRequestHeader('Content-type', 'application/json')
