@@ -8,6 +8,7 @@
   <meta name="description" content="A dead simple bookmark manager.">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#3F51B5">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link rel="apple-touch-icon" href="img/icon.png">
   <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
@@ -28,7 +29,7 @@
         <div class="mdl-layout-spacer"></div>
         <button id="settingsBtn" class="mdl-button mdl-js-button mdl-button--icon" title="Settings">
           <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-          <path fill="#424242" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"></path>
+            <path fill="#424242" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"></path>
           </svg>
         </button>
     </header>
@@ -49,55 +50,67 @@
         </div>
       </div>
     </main>
-  </div>
-  <button id="addURLBtn" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" title="Add new URL">
-    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-    <path fill="#ffffff" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
-    </svg>
-  </button>
-  <dialog id="settingsDialog" class="mdl-dialog mdl-cell--6-col">
-    <h4 class="mdl-dialog__title">Settings</h4>
-    <div class="mdl-dialog__content">
-    <p>A personal access token from Github is required to sync your URLs online. You can obtain one from <a href="https://github.com/settings/tokens/new">here</a>. Make sure to select <strong><code>gist</code></strong> scope.</p>
-    <p>Next create a secret gist with <strong><code>myurls</code></strong> file name and <strong><code>[]</code></strong> in content from <a href="https://gist.github.com/" target="_blank">here</a>.</p>
-      <form id="settingsForm">
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <input class="mdl-textfield__input" type="text" id="tokenInput" required>
-          <label class="mdl-textfield__label" for="tokenInput">Github access token</label>
-        </div>
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <input class="mdl-textfield__input" type="text" id="gistHashInput" required>
-          <label class="mdl-textfield__label" for="tokenInput">Gist hash</label>
-        </div>
-      </form>
     </div>
-    <div class="mdl-dialog__actions">
-      <button id="saveSettingsBtn" type="button" class="mdl-button">Save</button>
-      <button id="cancelSettingsBtn" type="button" class="mdl-button close">Cancel</button>
-    </div>
-  </dialog>
-  <dialog id="urlDialog" class="mdl-dialog mdl-cell--6-col">
-    <h4 class="mdl-dialog__title"><span id="addEdit">Add</span> URL</h4>
-    <div class="mdl-dialog__content">
-      <form id="urlForm">
-        <input class="mdl-textfield__input" type="text" name="id" id="urlId" hidden>
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <input class="mdl-textfield__input" type="text" name="url" id="urlInput" required>
-          <label class="mdl-textfield__label" for="urlInput">URL</label>
-        </div>
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <input class="mdl-textfield__input" type="text" name="title" id="titleInput" required>
-          <label class="mdl-textfield__label" for="titleInput">Title</label>
-        </div>
-        <span id="loadingAddURL" class="loading mdl-progress mdl-js-progress mdl-progress__indeterminate" style="display: none"></span>
-      </form>
-    </div>
-    <div class="mdl-dialog__actions">
-      <button id="saveURLBtn" type="button" class="mdl-button">Save</button>
-      <button id="cancelURLBtn" type="button" class="mdl-button close">Cancel</button>
-    </div>
-  </dialog>
-  <dialog id="deleteDialog" class="mdl-dialog mdl-cell--4-col">
+    <button id="addURLBtn" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" title="Add new URL">
+      <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+        <path fill="#ffffff" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+      </svg>
+    </button>
+    <dialog id="settingsDialog" class="mdl-dialog mdl-cell--6-col">
+      <h4 class="mdl-dialog__title">Settings</h4>
+      <div class="mdl-dialog__content">
+        <p>A personal access token from Github is required to sync your URLs online. You can obtain one from
+          <a href="https://github.com/settings/tokens/new">here</a>. Make sure to select
+          <strong>
+            <code>gist</code>
+          </strong> scope.</p>
+        <p>Next create a secret gist with
+          <strong>
+            <code>myurls</code>
+          </strong> file name and
+          <strong>
+            <code>[]</code>
+          </strong> in content from
+          <a href="https://gist.github.com/" target="_blank">here</a>.</p>
+        <form id="settingsForm">
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="text" id="tokenInput" required>
+            <label class="mdl-textfield__label" for="tokenInput">Github access token</label>
+          </div>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="text" id="gistHashInput" required>
+            <label class="mdl-textfield__label" for="tokenInput">Gist hash</label>
+          </div>
+        </form>
+      </div>
+      <div class="mdl-dialog__actions">
+        <button id="saveSettingsBtn" type="button" class="mdl-button">Save</button>
+        <button id="cancelSettingsBtn" type="button" class="mdl-button close">Cancel</button>
+      </div>
+    </dialog>
+    <dialog id="urlDialog" class="mdl-dialog mdl-cell--6-col">
+      <h4 class="mdl-dialog__title">
+        <span id="addEdit">Add</span> URL</h4>
+      <div class="mdl-dialog__content">
+        <form id="urlForm">
+          <input class="mdl-textfield__input" type="text" name="id" id="urlId" hidden>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="text" name="url" id="urlInput" required>
+            <label class="mdl-textfield__label" for="urlInput">URL</label>
+          </div>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="text" name="title" id="titleInput" required>
+            <label class="mdl-textfield__label" for="titleInput">Title</label>
+          </div>
+          <span id="loadingAddURL" class="loading mdl-progress mdl-js-progress mdl-progress__indeterminate" style="display: none"></span>
+        </form>
+      </div>
+      <div class="mdl-dialog__actions">
+        <button id="saveURLBtn" type="button" class="mdl-button">Save</button>
+        <button id="cancelURLBtn" type="button" class="mdl-button close">Cancel</button>
+      </div>
+    </dialog>
+    <dialog id="deleteDialog" class="mdl-dialog mdl-cell--4-col">
       <h4 class="mdl-dialog__title">Delete</h4>
       <div class="mdl-dialog__content">
         <p>
@@ -114,6 +127,16 @@
       <div class="mdl-snackbar__text"></div>
       <button class="mdl-snackbar__action" type="button"></button>
     </div>
+
+    <script>
+      "serviceWorker" in navigator && (navigator.serviceWorker.register("/service-worker.js", {
+        scope: "/"
+      }).then(function (e) {
+        console.log("Service Worker Registered")
+      }), navigator.serviceWorker.ready.then(function (e) {
+        console.log("Service Worker Ready")
+      }))
+    </script>
 </body>
 
 </html>
