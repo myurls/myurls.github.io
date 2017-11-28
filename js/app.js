@@ -185,6 +185,7 @@
       localStorage.setItem(tokenKey, token)
       localStorage.setItem(gistKey, gist)
       hideSettingsDialog()
+      syncMyURLs()
     }
   }
 
