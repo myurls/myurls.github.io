@@ -350,6 +350,8 @@
       renderMyURLs()
     }
 
+    if (!$settingsBtn.classList.contains('spin')) $settingsBtn.classList.add('spin')
+
     fetch('https://api.github.com/gists/' + gist, {
       headers: {
         Authorization: 'token ' + token
@@ -366,7 +368,7 @@
     .catch(err => {
       renderMyURLs()
       localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
-
+      $settingsBtn.classList.remove('spin')
       showSnackbar()
       console.error(err)
     })
@@ -388,6 +390,7 @@
     request.setRequestHeader('Authorization', 'token ' + token)
     request.onreadystatechange = e => {  
       if (request.readyState === 4 && request.status !== 200) showSnackbar()
+      $settingsBtn.classList.remove('spin')
     }
   
     request.send(JSON.stringify({
