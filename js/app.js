@@ -360,7 +360,7 @@
     .then(res => res.json())
     .then(json => {
       const remoteURLs = parseJSON(json.files.myurls.content) || []
-      myURLs = mergeArrays('url', myURLs, remoteURLs)
+      myURLs = mergeArrays('url', myURLs, remoteURLs).sort((a, b) => a.timestamp > b.timestamp)
       renderMyURLs()
       localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
       uploadMyURLs()
