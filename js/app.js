@@ -185,6 +185,7 @@
       localStorage.setItem(tokenKey, token)
       localStorage.setItem(gistKey, gist)
       hideSettingsDialog()
+      syncMyURLs()
     }
   }
 
@@ -272,12 +273,7 @@
     while (i--) {
       if (myURLs[i].url === urlObj.url) {
         exists = true
-        $snackbar.MaterialSnackbar.showSnackbar({
-          message: 'URL already exists.',
-          actionHandler: e => $snackbar.MaterialSnackbar.cleanup_(),
-          actionText: 'OK',
-          timeout: 4000
-        })
+        showSnackbar('URL already exists.')
         break
       }
     }
@@ -354,6 +350,8 @@
       renderMyURLs()
     }
 
+    if (!$settingsBtn.classList.contains('spin')) $settingsBtn.classList.add('spin')
+
     fetch('https://api.github.com/gists/' + gist, {
       headers: {
         Authorization: 'token ' + token
@@ -362,7 +360,7 @@
     .then(res => res.json())
     .then(json => {
       const remoteURLs = parseJSON(json.files.myurls.content) || []
-      myURLs = mergeArrays('url', myURLs, remoteURLs)
+      myURLs = mergeArrays('url', myURLs, remoteURLs).sort((a, b) => a.timestamp > b.timestamp)
       renderMyURLs()
       localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
       uploadMyURLs()
@@ -370,15 +368,33 @@
     .catch(err => {
       renderMyURLs()
       localStorage.setItem(myURLsKey, JSON.stringify(myURLs))
+      $settingsBtn.classList.remove('spin')
+      showSnackbar()
       console.error(err)
     })
   }
 
-  function uploadMyURLs () {
+  function showSnackbar (message, actionText, time, actionHandler) {
+    $snackbar.MaterialSnackbar.showSnackbar({
+      message: message || 'Could not sync with gist. Pelease provide the correct token and gist.',
+      actionHandler: actionHandler || function () { $snackbar.MaterialSnackbar.cleanup_() },
+      actionText: actionText || 'OK',
+      timeout: time || 4000
+    })
+  }
+
+  function uploadMyURLs() {
+    if (!token || !gist) return
+    if (!$settingsBtn.classList.contains('spin')) $settingsBtn.classList.add('spin')
     const request = new XMLHttpRequest()
     request.open('PATCH', 'https://api.github.com/gists/' + gist, false)
     request.setRequestHeader('Content-type', 'application/json')
     request.setRequestHeader('Authorization', 'token ' + token)
+    request.onreadystatechange = e => {  
+      if (request.readyState === 4 && request.status !== 200) showSnackbar()
+      $settingsBtn.classList.remove('spin')
+    }
+  
     request.send(JSON.stringify({
       description: 'Gist for https://myurls.github.io',
       files: {

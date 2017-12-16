@@ -85,3 +85,31 @@ button>svg {
   line-height: 24px;
   width: 24px;
 }
+
+.spin {
+  -webkit-animation: spin-kf 2s infinite linear;
+  -moz-animation: spin-kf 2s infinite linear;
+  -o-animation: spin-kf 2s infinite linear;
+  animation: spin-kf 2s infinite linear;
+      display: block;
+  }
+
+  @-webkit-keyframes spin-kf {
+  0% { -webkit-transform: rotate(0deg);}
+  100% { -webkit-transform: rotate(360deg);}
+  }
+
+  @-moz-keyframes spin-kf {
+  0% { -moz-transform: rotate(0deg);}
+  100% { -moz-transform: rotate(360deg);}
+  }
+
+  @-o-keyframes spin-kf {
+  0% { -o-transform: rotate(0deg);}
+  100% { -o-transform: rotate(360deg);}
+  }
+
+  @keyframes spin-kf {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+  }
