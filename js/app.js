@@ -63,7 +63,12 @@
   function init () {
     const url = location.search.split('=').pop()
     if (isValidURL(url)) {
-      fetch(corsAnywhere(url))
+      fetch(corsAnywhere(url), {
+        headers: {
+          'origin': url,
+          'x-requested-with': url
+        }
+      })
       .then(res => res.text())
       .then(str => (new window.DOMParser()).parseFromString(str, 'text/html'))
       .then(({ title }) => saveURL({ url, title, id: getId(), timestamp: Date.now() }))
