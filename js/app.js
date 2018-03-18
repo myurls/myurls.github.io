@@ -7,6 +7,7 @@
   let gist = localStorage.getItem(gistKey)
   const myURLsKey = 'myURLs'
   let myURLs = parseJSON(localStorage.getItem(myURLsKey)) || []
+  let timer
 
   const $settingsBtn = $('#settingsBtn')
   const $settingsDialog = $('#settingsDialog')
@@ -52,6 +53,10 @@
   $saveURLBtn.addEventListener('click', saveURLHandler)
   $cancelURLBtn.addEventListener('click', hideURLDialog)
   $urlInput.addEventListener('change', urlInputHandler)
+  $urlInput.addEventListener('keyup', function (e) {
+    clearTimeout(timer)
+    timer = setTimeout(urlInputHandler, 2000)
+  })
 
   $mainContainer.addEventListener('scroll', scrollHandler, false)
   $searchInput.addEventListener('keyup', searchHandler)
@@ -205,9 +210,9 @@
     $settingsDialog.close()
   }
 
-  function urlInputHandler (e) {
+  function urlInputHandler () {
     const url = $urlInput.value
-    if (!isValidURL(url)) return
+    if (!isValidURL(url) || $titleInput.value) return
 
     $loadingAddURL.style.display = 'block'
     $saveURLBtn.disabled = true
